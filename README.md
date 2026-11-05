@@ -53,7 +53,8 @@ npm run seed
 
 Creates or updates, by name: the `website`, `discourse` and `grid-editor` apps,
 the SMTP connector, the sign-in experience, the account center and the `hq-api`
-API resource. `branding.css` styles the hosted sign-in and account pages.
+API resource. `branding.css` styles the hosted sign-in and account pages, with
+Inter Bold from `fonts/` (SIL Open Font License) embedded for the headings.
 Turnstile is configured only when both `TURNSTILE_*` keys are set. A rerun with
 the same env prints `No changes.`
 

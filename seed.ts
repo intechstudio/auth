@@ -188,14 +188,28 @@ async function upsertTurnstile(): Promise<boolean> {
   return true;
 }
 
-/** The website's font files send no CORS headers, so the hosted pages embed the one weight they use. */
+/** Inter Bold as Google Fonts serves it, by unicode range. License: fonts/OFL.txt. */
+const BRANDING_FONTS = [
+  [
+    "Inter-Bold-latin.woff2",
+    "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+  ],
+  [
+    "Inter-Bold-latin-ext.woff2",
+    "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF",
+  ],
+];
+
+/** The font is embedded, so the hosted pages load nothing from another origin. */
 async function loadBrandingCss() {
   const css = await readFile(new URL("./branding.css", import.meta.url), "utf8");
-  const fontPath = process.env.BRANDING_FONT_PATH;
-  if (!fontPath) return css;
-  const font = await readFile(fontPath);
-  const fontFace = `@font-face { font-family: Grifter; font-weight: 700; src: url(data:font/woff2;base64,${font.toString("base64")}) format("woff2"); }`;
-  return `${fontFace}\n${css}`;
+  const fontFaces = await Promise.all(
+    BRANDING_FONTS.map(async ([file, unicodeRange]) => {
+      const font = await readFile(new URL(`./fonts/${file}`, import.meta.url));
+      return `@font-face { font-family: Inter; font-weight: 700; src: url(data:font/woff2;base64,${font.toString("base64")}) format("woff2"); unicode-range: ${unicodeRange}; }`;
+    }),
+  );
+  return `${fontFaces.join("\n")}\n${css}`;
 }
 
 async function upsertSignInExperience(

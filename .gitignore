@@ -3,5 +3,4 @@ node_modules/
 .env.*
 !.env.example
 exports/
-*.woff2
 .DS_Store

@@ -1,7 +1,7 @@
 /*
  * Hosted sign-in and account pages, applied by seed.ts, which also prepends the
- * Grifter font when BRANDING_FONT_PATH is set. Logto's class names carry a build
- * hash, so match them by suffix or use its stable logto_ names.
+ * Inter font. Logto's class names carry a build hash, so match them by suffix
+ * or use its stable logto_ names.
  */
 
 * {
@@ -32,6 +32,6 @@ body.desktop .logto_ac-card-main {
 [class$="_headline"],
 .logto_ac-card-main [class*="_title"],
 [class*="_button"][class*="_primary"] {
-  font-family: Grifter, sans-serif !important;
+  font-family: Inter, sans-serif !important;
   font-weight: 700 !important;
 }
