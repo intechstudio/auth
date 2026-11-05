@@ -1,0 +1,69 @@
+# Local identity provider for development. Every port is published on
+# 127.0.0.1 only, and the passwords below protect nothing but this stack.
+name: intech-auth
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_PASSWORD: logto-local
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  alteration:
+    # Exact tag: bump together with the alteration deploy version below.
+    image: &logto-image ghcr.io/logto-io/logto:1.45.0
+    entrypoint:
+      - sh
+      - -c
+      - npm run cli db seed -- --swe && npm run cli db alteration deploy 1.45.0
+    restart: "no"
+    environment:
+      DB_URL: &db-url postgres://postgres:logto-local@postgres:5432/logto
+      CI: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  logto:
+    image: *logto-image
+    depends_on:
+      alteration:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      DB_URL: *db-url
+      # Also the issuer host; seed.ts reads the same variable from .env.
+      ENDPOINT: ${LOGTO_ENDPOINT:-http://localhost:3001}
+      # For an https LOGTO_ENDPOINT in front of this stack (README).
+      TRUST_PROXY_HEADER: "1"
+    ports:
+      - 127.0.0.1:3001:3001
+      - 127.0.0.1:3002:3002
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3001/api/status').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - 127.0.0.1:1026:1025
+      - 127.0.0.1:8026:8025
+
+volumes:
+  postgres-data:
