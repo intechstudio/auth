@@ -1,0 +1,83 @@
+{
+  "realm": "intechstudio",
+  "enabled": true,
+  "registrationAllowed": true,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "bruteForceProtected": true,
+  "actionTokenGeneratedByAdminLifespan": 86400,
+  "actionTokenGeneratedByUserLifespan": 3600,
+  "attributes": {
+    "frontendUrl": "http://localhost:3001"
+  },
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "system@intech.studio",
+    "auth": "false",
+    "ssl": "false",
+    "starttls": "false"
+  },
+  "clients": [
+    {
+      "clientId": "website",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "$(env:WEBSITE_CLIENT_SECRET)",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:5173/auth/callback"],
+      "webOrigins": ["http://localhost:5173"],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:5173/##http://localhost:5173/checkout"
+      }
+    },
+    {
+      "clientId": "grid-editor",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://127.0.0.1/auth/callback",
+        "http://localhost:5273/auth/callback"
+      ],
+      "webOrigins": ["+"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "discourse",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "$(env:DISCOURSE_CLIENT_SECRET)",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["$(env:DISCOURSE_REDIRECT_URI)"]
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "google",
+      "providerId": "google",
+      "enabled": true,
+      "config": {
+        "clientId": "$(env:GOOGLE_CLIENT_ID)",
+        "clientSecret": "$(env:GOOGLE_CLIENT_SECRET)"
+      }
+    }
+  ]
+}

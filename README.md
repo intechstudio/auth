@@ -13,28 +13,37 @@ specific to Keycloak; everything that is lives here.
 It holds no production configuration and no credentials. Keep it that way: never
 commit a `.env` file, a user export, or anything taken from a hosted instance.
 
-## Status
-
-The Keycloak stack is being built. `docker-compose.yml` runs Keycloak at an
-exact image tag with its own Postgres and Mailpit, published on `127.0.0.1`
-only:
+## Running it
 
 ```sh
+cp .env.example .env
 docker compose up -d
 ```
 
+This starts Keycloak, its Postgres and Mailpit, published on `127.0.0.1`
+only. Once Keycloak is healthy, the one-off `keycloak-config-cli` service
+applies `realm/intechstudio.json` and exits. After editing the realm file,
+apply it again:
+
+```sh
+docker compose run --rm keycloak-config-cli
+```
+
+Applying is idempotent; an unchanged file is skipped. Values written as
+`$(env:NAME)` in the realm file come from `.env`; `.env.example` lists them
+all.
+
 | Service | URL |
 |---|---|
-| Keycloak (admin console: `admin` / `admin` unless set in `.env`) | http://localhost:3001 |
-| Mailpit | http://localhost:8026 (SMTP on port 1026) |
+| Keycloak admin console (`admin` / `admin` unless set in `.env`) | http://localhost:3001/admin |
+| Mailpit, where every email the realm sends lands | http://localhost:8026 (SMTP on port 1026) |
 
-Still to come:
+The realm has open sign-up with email verification, forgot password,
+sign-in with email, brute-force detection, a Google identity provider
+(`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`) and the clients below.
 
-- The `intechstudio` realm as a file, applied idempotently: open sign-up with
-  email verification, forgot password, brute-force detection, SMTP to
-  Mailpit, and the clients below.
-- A login theme: CSS and message overrides on the default theme, set in Inter.
-  No font files are kept in this repo.
+Still to come: a login theme (message overrides on the default theme, system
+fonts for now).
 
 ## Clients
 
