@@ -10,7 +10,93 @@
   "actionTokenGeneratedByAdminLifespan": 86400,
   "actionTokenGeneratedByUserLifespan": 3600,
   "attributes": {
-    "frontendUrl": "$(env:AUTH_URL)"
+    "frontendUrl": "$(env:AUTH_URL)",
+    "userProfileEnabled": "true"
+  },
+  "userProfile": {
+    "attributes": [
+      {
+        "name": "username",
+        "displayName": "${username}",
+        "validations": {
+          "length": {
+            "min": 3,
+            "max": 255
+          },
+          "username-prohibited-characters": {},
+          "up-username-not-idn-homograph": {}
+        },
+        "permissions": {
+          "view": ["admin", "user"],
+          "edit": ["admin", "user"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "email",
+        "displayName": "${email}",
+        "validations": {
+          "email": {},
+          "length": {
+            "max": 255
+          }
+        },
+        "required": {
+          "roles": ["user"]
+        },
+        "permissions": {
+          "view": ["admin", "user"],
+          "edit": ["admin", "user"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "firstName",
+        "displayName": "${firstName}",
+        "validations": {
+          "length": {
+            "max": 255
+          },
+          "person-name-prohibited-characters": {}
+        },
+        "permissions": {
+          "view": ["admin", "user"],
+          "edit": ["admin", "user"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "lastName",
+        "displayName": "${lastName}",
+        "validations": {
+          "length": {
+            "max": 255
+          },
+          "person-name-prohibited-characters": {}
+        },
+        "permissions": {
+          "view": ["admin", "user"],
+          "edit": ["admin", "user"]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "recoveryEmail",
+        "displayName": "Recovery email",
+        "permissions": {
+          "view": ["admin"],
+          "edit": ["admin"]
+        },
+        "multivalued": false
+      }
+    ],
+    "groups": [
+      {
+        "name": "user-metadata",
+        "displayHeader": "User metadata",
+        "displayDescription": "Attributes, which refer to user metadata"
+      }
+    ]
   },
   "smtpServer": {
     "host": "mailpit",
@@ -32,7 +118,7 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["$(env:WEBSITE_URL)/auth/callback"],
+      "redirectUris": ["$(env:WEBSITE_URL)/auth/callback", "$(env:WEBSITE_URL)/"],
       "webOrigins": ["$(env:WEBSITE_URL)"],
       "attributes": {
         "post.logout.redirect.uris": "$(env:WEBSITE_URL)/##$(env:WEBSITE_URL)/checkout"

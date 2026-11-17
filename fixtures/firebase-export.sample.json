@@ -52,23 +52,15 @@
       "providerUserInfo": []
     },
     {
-      "localId": "fixtureUidUnverifiedGoogle04",
+      "localId": "fixtureUidUnverifiedClaim004",
       "lastSignedInAt": "1700000100000",
       "createdAt": "1700000000000",
       "email": "unverified.claim@example.com",
       "emailVerified": false,
-      "displayName": "Fixture Unverified Google",
+      "displayName": "Fixture Unverified Claim",
       "passwordHash": "J7xQ9ATKef6O7B5VeOoyB+oRkb/4fWRA1vMg+MvsXSu5JsBteLlL83rq78WPaowICnZIdauZAJRXxGX3pQV9AQ==",
       "salt": "Zml4dHVyZS1zYWx0LTAwMw==",
-      "providerUserInfo": [
-        {
-          "providerId": "google.com",
-          "rawId": "100000000000000000004",
-          "email": "own.google@example.com",
-          "displayName": "Fixture Unverified Google",
-          "photoUrl": "https://example.com/avatar.png"
-        }
-      ]
+      "providerUserInfo": []
     },
     {
       "localId": "fixtureUidAnonymous000000005",
