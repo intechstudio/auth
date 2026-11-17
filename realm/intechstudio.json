@@ -2,6 +2,8 @@
   "realm": "intechstudio",
   "enabled": true,
   "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "editUsernameAllowed": true,
   "verifyEmail": true,
   "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
@@ -60,8 +62,8 @@
           "person-name-prohibited-characters": {}
         },
         "permissions": {
-          "view": ["admin", "user"],
-          "edit": ["admin", "user"]
+          "view": ["admin"],
+          "edit": ["admin"]
         },
         "multivalued": false
       },
@@ -75,8 +77,8 @@
           "person-name-prohibited-characters": {}
         },
         "permissions": {
-          "view": ["admin", "user"],
-          "edit": ["admin", "user"]
+          "view": ["admin"],
+          "edit": ["admin"]
         },
         "multivalued": false
       },
@@ -118,7 +120,11 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["$(env:WEBSITE_URL)/auth/callback", "$(env:WEBSITE_URL)/"],
+      "redirectUris": [
+        "$(env:WEBSITE_URL)/auth/callback",
+        "$(env:WEBSITE_URL)/",
+        "$(env:WEBSITE_URL)/account"
+      ],
       "webOrigins": ["$(env:WEBSITE_URL)"],
       "attributes": {
         "post.logout.redirect.uris": "$(env:WEBSITE_URL)/##$(env:WEBSITE_URL)/checkout"
@@ -151,6 +157,15 @@
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
       "redirectUris": $${javascript: JSON.stringify(env.DISCOURSE_URL ? [env.DISCOURSE_URL + '/auth/oidc/callback'] : [])}
+    }
+  ],
+  "requiredActions": [
+    {
+      "alias": "UPDATE_EMAIL",
+      "name": "Update Email",
+      "providerId": "UPDATE_EMAIL",
+      "enabled": true,
+      "priority": 70
     }
   ],
   "identityProviders": [
