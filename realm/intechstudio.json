@@ -10,7 +10,7 @@
   "actionTokenGeneratedByAdminLifespan": 86400,
   "actionTokenGeneratedByUserLifespan": 3600,
   "attributes": {
-    "frontendUrl": "http://localhost:3001"
+    "frontendUrl": "$(env:AUTH_URL)"
   },
   "smtpServer": {
     "host": "mailpit",
@@ -32,10 +32,10 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["http://localhost:5173/auth/callback"],
-      "webOrigins": ["http://localhost:5173"],
+      "redirectUris": ["$(env:WEBSITE_URL)/auth/callback"],
+      "webOrigins": ["$(env:WEBSITE_URL)"],
       "attributes": {
-        "post.logout.redirect.uris": "http://localhost:5173/##http://localhost:5173/checkout"
+        "post.logout.redirect.uris": "$(env:WEBSITE_URL)/##$(env:WEBSITE_URL)/checkout"
       }
     },
     {
@@ -46,13 +46,11 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
-      "redirectUris": [
-        "http://127.0.0.1/auth/callback",
-        "http://localhost:5273/auth/callback"
-      ],
+      "redirectUris": $${javascript: JSON.stringify(['http://127.0.0.1/auth/callback'].concat(env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/auth/callback')))},
       "webOrigins": ["+"],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "$${javascript: env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/').join('##')}"
       }
     },
     {
@@ -66,14 +64,15 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["$(env:DISCOURSE_REDIRECT_URI)"]
+      "redirectUris": $${javascript: JSON.stringify(env.DISCOURSE_URL ? [env.DISCOURSE_URL + '/auth/oidc/callback'] : [])}
     }
   ],
   "identityProviders": [
     {
       "alias": "google",
       "providerId": "google",
-      "enabled": true,
+      "enabled": $(env:GOOGLE_ENABLED),
+      "trustEmail": true,
       "config": {
         "clientId": "$(env:GOOGLE_CLIENT_ID)",
         "clientSecret": "$(env:GOOGLE_CLIENT_SECRET)"

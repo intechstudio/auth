@@ -22,16 +22,20 @@ docker compose up -d
 
 This starts Keycloak, its Postgres and Mailpit, published on `127.0.0.1`
 only. Once Keycloak is healthy, the one-off `keycloak-config-cli` service
-applies `realm/intechstudio.json` and exits. After editing the realm file,
-apply it again:
+applies `realm/intechstudio.json` and exits. After editing the realm file
+or `.env`, apply it again:
 
 ```sh
 docker compose run --rm keycloak-config-cli
 ```
 
-Applying is idempotent; an unchanged file is skipped. Values written as
-`$(env:NAME)` in the realm file come from `.env`; `.env.example` lists them
-all.
+Applying is idempotent; an unchanged result is skipped.
+
+Every URL and secret comes from `.env`; `.env.example` lists them all with
+local values. URLs are base URLs (`AUTH_URL`, `WEBSITE_URL`,
+`GRID_EDITOR_WEB_URLS`, `DISCOURSE_URL`), and the realm file adds the paths.
+`GRID_EDITOR_WEB_URLS` is a comma-separated list, expanded by a
+`$${javascript: ...}` expression in the realm file.
 
 | Service | URL |
 |---|---|
@@ -39,8 +43,9 @@ all.
 | Mailpit, where every email the realm sends lands | http://localhost:8026 (SMTP on port 1026) |
 
 The realm has open sign-up with email verification, forgot password,
-sign-in with email, brute-force detection, a Google identity provider
-(`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`) and the clients below.
+sign-in with email, brute-force detection and the clients below. Google
+sign-in is off unless `GOOGLE_ENABLED=true`, with a Google OAuth client
+whose redirect URI is `<AUTH_URL>/realms/intechstudio/broker/google/endpoint`.
 
 Still to come: a login theme (message overrides on the default theme, system
 fonts for now).
