@@ -105,6 +105,23 @@ workflow support does not work against Keycloak 26.8.
 The scripts read `.env` and refuse a Keycloak that is not on this machine
 unless `--target-host <host>` names its host.
 
+## Test users for end-to-end tests
+
+Other repos' end-to-end tests get users and ID tokens from this helper, so
+none of them depends on Keycloak's API:
+
+```sh
+node e2e/test-user.ts create --first-name Ana --last-name Lopez   # {"id","email","password"}
+node e2e/test-user.ts token <email> <password>                    # ID token for grid-editor
+node e2e/test-user.ts delete <id>
+```
+
+`create` makes a verified user with a random `e2e-…@example.com` email and
+password. `token` signs in on the hosted login page with the code flow and
+PKCE, as the `grid-editor` client with a loopback redirect, so it needs no
+extra client or grant. Only JSON or the token goes to stdout. The same
+localhost guard as the other scripts applies.
+
 ## Sample export
 
 `fixtures/firebase-export.sample.json` is a Firebase `auth:export` file with

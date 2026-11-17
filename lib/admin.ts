@@ -27,14 +27,20 @@ export const REALM = "intechstudio";
 
 export type Admin = (path: string, init?: RequestInit) => Promise<Response>;
 
-// Returns a fetch for `<AUTH_URL>/admin/realms/intechstudio<path>`.
-export async function connect(targetHost: string | undefined): Promise<Admin> {
+// AUTH_URL, once it is local or named by --target-host.
+export function authUrl(targetHost: string | undefined): URL {
   const base = new URL(env("AUTH_URL"));
   if (!LOCAL_HOSTS.has(base.hostname) && base.hostname !== targetHost) {
     throw new Error(
       `Refusing ${base.origin}: not local. Pass --target-host ${base.hostname} to confirm.`,
     );
   }
+  return base;
+}
+
+// Returns a fetch for `<AUTH_URL>/admin/realms/intechstudio<path>`.
+export async function connect(targetHost: string | undefined): Promise<Admin> {
+  const base = authUrl(targetHost);
 
   const tokenResponse = await fetch(new URL("/realms/master/protocol/openid-connect/token", base), {
     method: "POST",
