@@ -1,0 +1,79 @@
+{
+  "users": [
+    {
+      "localId": "fixtureUidPasswordGoogle0001",
+      "lastSignedInAt": "1700000100000",
+      "createdAt": "1700000000000",
+      "email": "password.google@example.com",
+      "emailVerified": true,
+      "displayName": "Fixture Password Google",
+      "photoUrl": "https://example.com/avatar.png",
+      "passwordHash": "IAEMhmevrd+bfIt2jexWnma/brm3maU48Njtg0sqxCPMdz/Kt/GC97eDmD43EdddbIU2czB7oAU5izB3nowZFg==",
+      "salt": "Zml4dHVyZS1zYWx0LTAwMQ==",
+      "disabled": false,
+      "providerUserInfo": [
+        {
+          "providerId": "google.com",
+          "rawId": "100000000000000000001",
+          "email": "password.google@example.com",
+          "displayName": "Fixture Password Google",
+          "photoUrl": "https://example.com/avatar.png"
+        }
+      ]
+    },
+    {
+      "localId": "fixtureUidGoogleOnly00000002",
+      "lastSignedInAt": "1700000100000",
+      "createdAt": "1700000000000",
+      "email": "google.only@example.com",
+      "emailVerified": true,
+      "displayName": "Fixture Google Only",
+      "photoUrl": "https://example.com/avatar.png",
+      "disabled": false,
+      "providerUserInfo": [
+        {
+          "providerId": "google.com",
+          "rawId": "100000000000000000002",
+          "email": "google.only@example.com",
+          "displayName": "Fixture Google Only",
+          "photoUrl": "https://example.com/avatar.png"
+        }
+      ]
+    },
+    {
+      "localId": "fixtureUidUnverifiedEmail003",
+      "lastSignedInAt": "1700000100000",
+      "createdAt": "1700000000000",
+      "email": "unverified@example.com",
+      "emailVerified": false,
+      "displayName": "Fixture Unverified",
+      "passwordHash": "HbgKwu5DlS5AcTk1JsSnCSkGTwepS1txd8imrwEm8U5kA5mIhmoPoQfk4rGzN7LpZ4I0LSRugVsxJgnwn8vXPw==",
+      "salt": "Zml4dHVyZS1zYWx0LTAwMg==",
+      "providerUserInfo": []
+    },
+    {
+      "localId": "fixtureUidUnverifiedGoogle04",
+      "lastSignedInAt": "1700000100000",
+      "createdAt": "1700000000000",
+      "email": "unverified.claim@example.com",
+      "emailVerified": false,
+      "displayName": "Fixture Unverified Google",
+      "passwordHash": "J7xQ9ATKef6O7B5VeOoyB+oRkb/4fWRA1vMg+MvsXSu5JsBteLlL83rq78WPaowICnZIdauZAJRXxGX3pQV9AQ==",
+      "salt": "Zml4dHVyZS1zYWx0LTAwMw==",
+      "providerUserInfo": [
+        {
+          "providerId": "google.com",
+          "rawId": "100000000000000000004",
+          "email": "own.google@example.com",
+          "displayName": "Fixture Unverified Google",
+          "photoUrl": "https://example.com/avatar.png"
+        }
+      ]
+    },
+    {
+      "localId": "fixtureUidAnonymous000000005",
+      "lastSignedInAt": "1700000100000",
+      "createdAt": "1700000000000"
+    }
+  ]
+}
