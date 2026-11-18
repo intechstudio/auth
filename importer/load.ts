@@ -2,7 +2,7 @@
 // API's partial import. Users that already exist (same id, username or email)
 // are skipped, never overwritten.
 //
-//   node importer/load.ts <users.json> [--target-host <host>]
+//   node importer/load.ts <users.json>
 
 import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -10,17 +10,14 @@ import { check, connect } from "../lib/admin.ts";
 
 const CHUNK = 500;
 
-const { positionals, values } = parseArgs({
-  allowPositionals: true,
-  options: { "target-host": { type: "string" } },
-});
+const { positionals } = parseArgs({ allowPositionals: true });
 if (positionals.length !== 1) {
-  console.error("usage: node importer/load.ts <users.json> [--target-host <host>]");
+  console.error("usage: node importer/load.ts <users.json>");
   process.exit(2);
 }
 
 const { users } = JSON.parse(readFileSync(positionals[0], "utf8"));
-const admin = await connect(values["target-host"]);
+const admin = await connect();
 
 let added = 0;
 let skipped = 0;

@@ -32,8 +32,8 @@ docker compose run --rm keycloak-config-cli
 Applying is idempotent; an unchanged result is skipped.
 
 Every URL and secret comes from `.env`; `.env.example` lists them all with
-local values. URLs are base URLs (`AUTH_URL`, `WEBSITE_URL`,
-`GRID_EDITOR_WEB_URLS`, `DISCOURSE_URL`), and the realm file adds the paths.
+local values. URLs are base URLs (`WEBSITE_URL`, `GRID_EDITOR_WEB_URLS`,
+`DISCOURSE_URL`), and the realm file adds the paths.
 `GRID_EDITOR_WEB_URLS` is a comma-separated list, expanded by a
 `$${javascript: ...}` expression in the realm file.
 
@@ -45,10 +45,44 @@ local values. URLs are base URLs (`AUTH_URL`, `WEBSITE_URL`,
 The realm has open sign-up with email verification, forgot password,
 sign-in with email, brute-force detection and the clients below. Google
 sign-in is off unless `GOOGLE_ENABLED=true`, with a Google OAuth client
-whose redirect URI is `<AUTH_URL>/realms/intechstudio/broker/google/endpoint`.
+whose redirect URI is
+`http://localhost:3001/realms/intechstudio/broker/google/endpoint` (add the
+same path on your tunnel hostname to sign in with Google through it).
 
 Still to come: a login theme (message overrides on the default theme, system
 fonts for now).
+
+## Localhost and an optional tunnel
+
+Keycloak has no fixed hostname: it builds its URLs, the issuer among them,
+from each request. Everything on this machine (the website, the shop, Grid
+Editor, end-to-end tests and the scripts here) uses
+`http://localhost:3001/realms/intechstudio`.
+
+Only Profile Cloud's Firebase sign-in needs a public issuer. For that, each
+developer can run their own Cloudflare Tunnel to this Keycloak, under their
+own hostname. Localhost and the tunnel work at the same time, without
+switching anything. To set one up:
+
+1. In Cloudflare Zero Trust, create a tunnel (cloudflared) and copy its token.
+2. Give it a public hostname, say `auth-<name>.example.com`, with the service
+   `http://keycloak:8080`.
+3. In `.env`, set `TUNNEL_TOKEN`.
+4. Start the stack with the tunnel:
+
+   ```sh
+   docker compose --profile tunnel up -d
+   curl -s https://auth-<name>.example.com/realms/intechstudio/.well-known/openid-configuration | jq .issuer
+   # "https://auth-<name>.example.com/realms/intechstudio"
+   ```
+
+5. Point a Firebase OIDC provider, or Grid Editor's `VITE_AUTH_ISSUER_DEV`,
+   at `https://auth-<name>.example.com/realms/intechstudio`.
+
+Plain `docker compose up -d` leaves the tunnel off, and
+`docker compose stop cloudflared` stops it. Keycloak trusts `X-Forwarded-*` headers
+(`KC_PROXY_HEADERS`); cloudflared sends the tunnel hostname as `Host` and
+`X-Forwarded-Proto: https`, so the tunnel's URLs are `https`.
 
 ## Clients
 
@@ -61,7 +95,8 @@ to copy generated ids.
 | `grid-editor` | public, PKCE | Grid Editor desktop (loopback redirect) and web builds |
 | `discourse` | confidential | the forum |
 
-Local issuer: `http://localhost:3001/realms/intechstudio`.
+Local issuer: `http://localhost:3001/realms/intechstudio`; through a tunnel,
+`https://<hostname>/realms/intechstudio`.
 
 ## Importing Firebase users
 
@@ -102,8 +137,22 @@ alone; only `--enable` and `--disable`, or the toggle under Workflows in the
 admin console, change it. keycloak-config-cli does not manage it: its
 workflow support does not work against Keycloak 26.8.
 
-The scripts read `.env` and refuse a Keycloak that is not on this machine
-unless `--target-host <host>` names its host.
+The workflow sends without a request, so Keycloak has no host to build the
+link from: creating it fails, and a running one sends nothing (users stay
+pending). To test it, give Keycloak a fixed URL first, and take it away when
+done:
+
+```sh
+# .env: AUTH_FRONTEND_URL=http://localhost:3001
+docker compose run --rm keycloak-config-cli
+```
+
+Meanwhile every issuer is `http://localhost:3001/realms/intechstudio`, the
+tunnel's too. Clear `AUTH_FRONTEND_URL` and apply the realm again to get the
+tunnel back.
+
+The scripts read `.env` and always talk to the Keycloak on
+`http://localhost:3001`.
 
 ## Test users for end-to-end tests
 
@@ -119,8 +168,8 @@ node e2e/test-user.ts delete <id>
 `create` makes a verified user with a random `e2e-…@example.com` email and
 password. `token` signs in on the hosted login page with the code flow and
 PKCE, as the `grid-editor` client with a loopback redirect, so it needs no
-extra client or grant. Only JSON or the token goes to stdout. The same
-localhost guard as the other scripts applies.
+extra client or grant. Only JSON or the token goes to stdout. Like the other
+scripts, it uses the Keycloak on `http://localhost:3001`.
 
 ## Sample export
 

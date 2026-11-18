@@ -3,7 +3,7 @@
 // existing one keeps its enabled state, which only --enable or --disable (or
 // the admin console) changes.
 //
-//   node workflows/apply.ts [--enable <name> | --disable <name>] [--target-host <host>]
+//   node workflows/apply.ts [--enable <name> | --disable <name>]
 
 import { readdirSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -24,7 +24,6 @@ const { values } = parseArgs({
   options: {
     enable: { type: "string" },
     disable: { type: "string" },
-    "target-host": { type: "string" },
   },
 });
 
@@ -43,7 +42,7 @@ for (const name of [values.enable, values.disable]) {
   }
 }
 
-const admin = await connect(values["target-host"]);
+const admin = await connect();
 const existing: Workflow[] = await (await check(await admin("/workflows?max=1000"))).json();
 
 for (const definition of definitions) {

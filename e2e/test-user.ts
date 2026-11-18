@@ -4,26 +4,22 @@
 //   node e2e/test-user.ts create [--first-name <x>] [--last-name <y>]   -> {"id","email","password"}
 //   node e2e/test-user.ts token <email> <password>                      -> ID token
 //   node e2e/test-user.ts delete <id>
-//
-// Each takes --target-host <host> for a Keycloak that is not on this machine.
 
 import { createHash, randomBytes } from "node:crypto";
 import { parseArgs } from "node:util";
-import { authUrl, check, connect, REALM } from "../lib/admin.ts";
+import { AUTH_URL, check, connect, REALM } from "../lib/admin.ts";
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
   options: {
     "first-name": { type: "string" },
     "last-name": { type: "string" },
-    "target-host": { type: "string" },
   },
 });
 const [command, ...args] = positionals;
-const targetHost = values["target-host"];
 
 if (command === "create" && args.length === 0) {
-  const admin = await connect(targetHost);
+  const admin = await connect();
   const email = `e2e-${randomBytes(6).toString("hex")}@example.com`;
   const password = `e2e-${randomBytes(16).toString("hex")}-Aa1!`;
   const response = await check(
@@ -44,9 +40,9 @@ if (command === "create" && args.length === 0) {
   const id = response.headers.get("location")!.split("/").pop();
   console.log(JSON.stringify({ id, email, password }));
 } else if (command === "token" && args.length === 2) {
-  console.log(await signIn(authUrl(targetHost), args[0], args[1]));
+  console.log(await signIn(args[0], args[1]));
 } else if (command === "delete" && args.length === 1) {
-  const admin = await connect(targetHost);
+  const admin = await connect();
   const response = await admin(`/users/${encodeURIComponent(args[0])}`, { method: "DELETE" });
   if (response.status === 404) {
     console.error(`No user ${args[0]}`);
@@ -66,8 +62,8 @@ if (command === "create" && args.length === 0) {
 // What a browser does on the hosted login page: the code flow with PKCE for
 // the public grid-editor client, ending at a loopback redirect nobody listens
 // on; the code is read from the redirect itself.
-async function signIn(base: URL, email: string, password: string): Promise<string> {
-  const realm = new URL(`/realms/${REALM}/protocol/openid-connect/`, base);
+async function signIn(email: string, password: string): Promise<string> {
+  const realm = new URL(`/realms/${REALM}/protocol/openid-connect/`, AUTH_URL);
   const redirectUri = `http://127.0.0.1:${49152 + Math.floor(Math.random() * 16384)}/auth/callback`;
   const verifier = randomBytes(32).toString("base64url");
 

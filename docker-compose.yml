@@ -13,6 +13,10 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
       KC_HEALTH_ENABLED: "true"
+      # No fixed hostname: URLs and the issuer follow the request, so
+      # localhost and a tunnel work side by side. start-dev already turns
+      # hostname-strict off; trust the tunnel's X-Forwarded-Proto/-Host.
+      KC_PROXY_HEADERS: xforwarded
     ports:
       - "127.0.0.1:3001:8080"
     depends_on:
@@ -40,7 +44,7 @@ services:
       # The JS engine unpacks itself to a cache; the image's user has no home.
       IMPORT_VARSUBSTITUTION_SCRIPTEVALUATIONENABLED: "true"
       JAVA_OPTS: -Dpolyglot.engine.userResourceCache=/tmp/polyglot -Dpolyglot.engine.WarnInterpreterOnly=false
-      AUTH_URL: ${AUTH_URL:-http://localhost:3001}
+      AUTH_FRONTEND_URL: ${AUTH_FRONTEND_URL:-}
       WEBSITE_URL: ${WEBSITE_URL:-http://localhost:5173}
       GRID_EDITOR_WEB_URLS: ${GRID_EDITOR_WEB_URLS:-}
       DISCOURSE_URL: ${DISCOURSE_URL:-}
@@ -74,6 +78,19 @@ services:
     ports:
       - "127.0.0.1:1026:1025"
       - "127.0.0.1:8026:8025"
+
+  # Optional: this Keycloak under the developer's own public hostname, for
+  # what needs a public issuer. Starts only with `--profile tunnel`. The
+  # tunnel's hostname routes to http://keycloak:8080 (set in Cloudflare).
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    profiles: [tunnel]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on:
+      keycloak:
+        condition: service_healthy
 
 volumes:
   postgres:

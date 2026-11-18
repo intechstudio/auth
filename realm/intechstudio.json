@@ -12,7 +12,7 @@
   "actionTokenGeneratedByAdminLifespan": 86400,
   "actionTokenGeneratedByUserLifespan": 3600,
   "attributes": {
-    "frontendUrl": "$(env:AUTH_URL)",
+    "frontendUrl": "$(env:AUTH_FRONTEND_URL)",
     "userProfileEnabled": "true"
   },
   "userProfile": {
@@ -142,7 +142,7 @@
       "webOrigins": ["+"],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "$${javascript: env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/').join('##')}"
+        "post.logout.redirect.uris": "$${javascript: ['http://127.0.0.1/auth/signed-out'].concat(env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/')).join('##')}"
       }
     },
     {

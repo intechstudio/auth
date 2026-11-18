@@ -1,19 +1,16 @@
 // Admin API access for the scripts in this repo. Reads `.env` when present,
-// with the same local defaults as docker-compose.yml, and refuses any
-// Keycloak that is not on this machine unless `--target-host <host>` names it.
+// with the same local defaults as docker-compose.yml. The scripts always talk
+// to the local Keycloak, also while a tunnel is up.
 
 import { existsSync } from "node:fs";
 
 const DEFAULTS: Record<string, string> = {
-  AUTH_URL: "http://localhost:3001",
   WEBSITE_URL: "http://localhost:5173",
   KC_ADMIN_USERNAME: "admin",
   KC_ADMIN_PASSWORD: "admin",
   RECOVERY_EMAIL_INTERVAL: "30s",
   RECOVERY_EMAIL_BATCH_SIZE: "2",
 };
-
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
 if (existsSync(".env")) process.loadEnvFile(".env");
 
@@ -23,26 +20,15 @@ export function env(name: string): string {
   return value;
 }
 
+export const AUTH_URL = new URL("http://localhost:3001");
 export const REALM = "intechstudio";
 
 export type Admin = (path: string, init?: RequestInit) => Promise<Response>;
 
-// AUTH_URL, once it is local or named by --target-host.
-export function authUrl(targetHost: string | undefined): URL {
-  const base = new URL(env("AUTH_URL"));
-  if (!LOCAL_HOSTS.has(base.hostname) && base.hostname !== targetHost) {
-    throw new Error(
-      `Refusing ${base.origin}: not local. Pass --target-host ${base.hostname} to confirm.`,
-    );
-  }
-  return base;
-}
-
 // Returns a fetch for `<AUTH_URL>/admin/realms/intechstudio<path>`.
-export async function connect(targetHost: string | undefined): Promise<Admin> {
-  const base = authUrl(targetHost);
-
-  const tokenResponse = await fetch(new URL("/realms/master/protocol/openid-connect/token", base), {
+export async function connect(): Promise<Admin> {
+  const tokenUrl = new URL("/realms/master/protocol/openid-connect/token", AUTH_URL);
+  const tokenResponse = await fetch(tokenUrl, {
     method: "POST",
     body: new URLSearchParams({
       grant_type: "password",
@@ -55,7 +41,7 @@ export async function connect(targetHost: string | undefined): Promise<Admin> {
   const { access_token } = await tokenResponse.json();
 
   return (path, init = {}) =>
-    fetch(new URL(`/admin/realms/${REALM}${path}`, base), {
+    fetch(new URL(`/admin/realms/${REALM}${path}`, AUTH_URL), {
       ...init,
       headers: {
         authorization: `Bearer ${access_token}`,
