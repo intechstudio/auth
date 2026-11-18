@@ -101,12 +101,14 @@
     ]
   },
   "smtpServer": {
-    "host": "mailpit",
-    "port": "1025",
+    "host": "$(env:SMTP_HOST)",
+    "port": "$(env:SMTP_PORT)",
     "from": "system@intech.studio",
-    "auth": "false",
+    "auth": "$${javascript: env.SMTP_USER ? 'true' : 'false'}",
+    "user": "$(env:SMTP_USER)",
+    "password": "$(env:SMTP_PASSWORD)",
     "ssl": "false",
-    "starttls": "false"
+    "starttls": "$(env:SMTP_STARTTLS)"
   },
   "clients": [
     {
@@ -140,6 +142,15 @@
       "directAccessGrantsEnabled": false,
       "redirectUris": $${javascript: JSON.stringify(['http://127.0.0.1/auth/callback'].concat(env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/auth/callback')))},
       "webOrigins": ["+"],
+      "defaultClientScopes": ["web-origins", "acr", "roles", "basic", "email"],
+      "optionalClientScopes": [
+        "profile",
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "$${javascript: ['http://127.0.0.1/auth/signed-out'].concat(env.GRID_EDITOR_WEB_URLS.split(',').map(u => u.trim()).filter(Boolean).map(u => u + '/')).join('##')}"
