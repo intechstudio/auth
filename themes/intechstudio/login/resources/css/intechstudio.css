@@ -1,22 +1,41 @@
-/* Colors, logo and buttons only; layout and markup stay Keycloak's (plan decision 58: system fonts) */
+/* Logo, colors and buttons only; layout and markup stay Keycloak's (plan decision 58: system fonts) */
 :root {
+    --is-ink: #000;
+    --is-paper: #fff;
+    --is-page: #f3f3f3;
+    --is-muted: #575757;
+    --is-shadow: #444;
+
     --keycloak-logo-url: url("../img/logo.svg");
     --keycloak-logo-height: 22px;
     --keycloak-logo-width: 300px;
-    --keycloak-card-top-color: #000;
+}
 
+/* Keycloak adds this class when the system prefers dark */
+:root.pf-v5-theme-dark {
+    --is-ink: #fff;
+    --is-paper: #000;
+    --is-page: #000;
+    --is-muted: #a5a5a5;
+    --is-shadow: #757575;
+
+    --keycloak-logo-url: url("../img/logo-white.svg");
+}
+
+:root,
+:root.pf-v5-theme-dark {
     --pf-v5-global--FontFamily--text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --pf-v5-global--FontFamily--heading: var(--pf-v5-global--FontFamily--text);
-    --pf-v5-global--link--Color: #000;
-    --pf-v5-global--link--Color--hover: #575757;
-    --pf-v5-global--primary-color--100: #000;
-    --pf-v5-global--primary-color--200: #242424;
+    --pf-v5-global--link--Color: var(--is-ink);
+    --pf-v5-global--link--Color--hover: var(--is-muted);
+    --pf-v5-global--primary-color--100: var(--is-ink);
+    --pf-v5-global--primary-color--200: var(--is-muted);
     --pf-v5-global--BorderRadius--sm: 0;
     --pf-v5-global--BorderRadius--lg: 0;
 }
 
 .login-pf body {
-    background: #f3f3f3;
+    background: var(--is-page);
 }
 
 #kc-header-wrapper {
@@ -24,7 +43,7 @@
 }
 
 .pf-v5-c-login__main {
-    border: 2px solid #000;
+    border: 2px solid var(--is-ink);
     box-shadow: none;
 }
 
@@ -32,40 +51,64 @@
     border-top: none;
 }
 
-.pf-v5-c-button.pf-m-primary {
-    --pf-v5-c-button--m-primary--BackgroundColor: #000;
-    --pf-v5-c-button--m-primary--hover--BackgroundColor: #000;
-    --pf-v5-c-button--m-primary--focus--BackgroundColor: #000;
-    --pf-v5-c-button--m-primary--active--BackgroundColor: #000;
+/* Black text links need an underline to stand out from the text around them */
+.pf-v5-c-login a:not(.pf-v5-c-button),
+.pf-v5-c-button.pf-m-link {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.pf-v5-c-button {
     --pf-v5-c-button--BorderRadius: 0;
+    --pf-v5-c-button--m-primary--Color: var(--is-paper);
+    --pf-v5-c-button--m-primary--hover--Color: var(--is-paper);
+    --pf-v5-c-button--m-primary--focus--Color: var(--is-paper);
+    --pf-v5-c-button--m-primary--active--Color: var(--is-paper);
+    --pf-v5-c-button--m-primary--BackgroundColor: var(--is-ink);
+    --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--is-ink);
+    --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--is-ink);
+    --pf-v5-c-button--m-primary--active--BackgroundColor: var(--is-ink);
+    --pf-v5-c-button--m-secondary--Color: var(--is-ink);
+    --pf-v5-c-button--m-secondary--hover--Color: var(--is-ink);
+    --pf-v5-c-button--m-secondary--after--BorderColor: var(--is-ink);
+    --pf-v5-c-button--m-secondary--hover--after--BorderColor: var(--is-ink);
+    --pf-v5-c-button--m-tertiary--after--BorderColor: var(--is-ink);
+    --pf-v5-c-button--m-tertiary--hover--after--BorderColor: var(--is-ink);
+}
+
+.pf-v5-c-button.pf-m-primary,
+.pf-v5-c-button.pf-m-secondary {
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     transition: box-shadow 100ms, transform 100ms;
 }
 
-.pf-v5-c-button.pf-m-primary:hover {
-    box-shadow: 4px 4px 0 0 #444;
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-secondary:hover {
+    box-shadow: 4px 4px 0 0 var(--is-shadow);
 }
 
-.pf-v5-c-button.pf-m-primary:active {
+.pf-v5-c-button.pf-m-primary:active,
+.pf-v5-c-button.pf-m-secondary:active {
     box-shadow: none;
     transform: translate(2px, 2px);
 }
 
+/* Keycloak's own rule for these buttons is more specific than .pf-v5-c-button */
 #kc-social-providers .pf-v5-c-button.pf-m-tertiary {
-    --pf-v5-c-button--BorderRadius: 0;
-    --pf-v5-c-button--m-tertiary--after--BorderColor: #000;
-    --pf-v5-c-button--m-tertiary--hover--after--BorderColor: #000;
+    --pf-v5-c-button--m-tertiary--after--BorderColor: var(--is-ink);
+    --pf-v5-c-button--m-tertiary--hover--after--BorderColor: var(--is-ink);
 }
 
 .pf-v5-c-form-control {
     --pf-v5-c-form-control--BorderRadius: 0;
-    --pf-v5-c-form-control--focus--after--BorderBottomColor: #000;
-    --pf-v5-c-form-control--hover--after--BorderBottomColor: #000;
+    --pf-v5-c-form-control--focus--after--BorderBottomColor: var(--is-ink);
+    --pf-v5-c-form-control--hover--after--BorderBottomColor: var(--is-ink);
 }
 
 :focus-visible {
-    outline: 2px solid #000;
+    outline: 2px solid var(--is-ink);
     outline-offset: 2px;
 }
