@@ -8,8 +8,10 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 
-// Admin-only user profile attribute; the recovery workflow selects on it.
+// Admin-only user profile attributes. The recovery workflow selects on the
+// marker; uid-map.ts reads the Firebase uid back once Keycloak has assigned ids.
 const RECOVERY_MARKER = "recoveryEmail";
+const FIREBASE_UID = "firebaseUid";
 
 type FirebaseUser = {
   localId: string;
@@ -22,7 +24,6 @@ type FirebaseUser = {
 };
 
 type KeycloakUser = {
-  id: string;
   username: string;
   email: string;
   emailVerified: boolean;
@@ -30,7 +31,7 @@ type KeycloakUser = {
   realmRoles: string[];
   firstName?: string;
   lastName?: string;
-  attributes?: Record<string, string[]>;
+  attributes: Record<string, string[]>;
   federatedIdentities?: { identityProvider: string; userId: string; userName: string }[];
 };
 
@@ -43,7 +44,6 @@ function toKeycloakUser(user: FirebaseUser): KeycloakUser {
   const google = (user.providerUserInfo ?? []).filter((p) => p.providerId === "google.com");
 
   return {
-    id: user.localId,
     username: email,
     email,
     emailVerified: user.emailVerified === true,
@@ -53,7 +53,10 @@ function toKeycloakUser(user: FirebaseUser): KeycloakUser {
     realmRoles: ["default-roles-intechstudio"],
     ...(firstName && { firstName }),
     ...(lastName && { lastName }),
-    ...(user.passwordHash && { attributes: { [RECOVERY_MARKER]: ["pending"] } }),
+    attributes: {
+      [FIREBASE_UID]: [user.localId],
+      ...(user.passwordHash && { [RECOVERY_MARKER]: ["pending"] }),
+    },
     ...(google.length > 0 && {
       federatedIdentities: google.map((p) => ({
         identityProvider: "google",
@@ -89,7 +92,7 @@ for (const [email, dupes] of duplicates) {
   console.log(`  ${email}: ${dupes.map((u) => u.localId).join(", ")}`);
 }
 console.log(`Importable:                ${users.length}`);
-console.log(`  marked for recovery:     ${users.filter((u) => u.attributes).length}`);
+console.log(`  marked for recovery:     ${users.filter((u) => u.attributes[RECOVERY_MARKER]).length}`);
 console.log(`  Google links:            ${users.reduce((n, u) => n + (u.federatedIdentities?.length ?? 0), 0)}`);
 console.log(`  unverified email:        ${users.filter((u) => !u.emailVerified).length}`);
 console.log(`  disabled:                ${users.filter((u) => !u.enabled).length}`);

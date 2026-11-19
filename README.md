@@ -101,22 +101,25 @@ Local issuer: `http://localhost:3001/realms/intechstudio`; through a tunnel,
 ## Importing Firebase users
 
 Needs Node 24 or later; no packages to install. Users from a
-`firebase auth:export --format=json` file keep their Firebase uid as Keycloak
-id (so `sub` is unchanged), get no password, and keep their Google link. Users
-who had a password get the admin-only attribute `recoveryEmail=pending`,
-which the recovery workflow below acts on. Users without an email are skipped,
-and so are users whose email (ignoring case) appears more than once; both are
-listed.
+`firebase auth:export --format=json` file get a Keycloak id like every other
+user, no password, and keep their Google link. Their Firebase uid goes into
+the admin-only attribute `firebaseUid`. Users who had a password also get
+`recoveryEmail=pending`, which the recovery workflow below acts on. Users
+without an email are skipped, and so are users whose email (ignoring case)
+appears more than once; both are listed.
 
 ```sh
 node importer/convert.ts export.json                                  # dry run: counts only
 node importer/convert.ts export.json --write exports/users.json
 node importer/load.ts exports/users.json
+node importer/uid-map.ts exports/uid-map.json                         # Firebase uid -> Keycloak id
 ```
 
 `load.ts` uses the Admin API's partial import into the running realm. A user
 that already exists is skipped, not overwritten, so loading again is safe.
-Keep exports and users files in `exports/`, which git ignores.
+`uid-map.ts` reads the ids Keycloak assigned back from `firebaseUid`; apps
+that keyed data on the Firebase uid remap with that file. Keep exports,
+users files and maps in `exports/`, which git ignores.
 
 ## Recovery email
 

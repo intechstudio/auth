@@ -90,6 +90,15 @@
           "edit": ["admin"]
         },
         "multivalued": false
+      },
+      {
+        "name": "firebaseUid",
+        "displayName": "Firebase uid",
+        "permissions": {
+          "view": ["admin"],
+          "edit": ["admin"]
+        },
+        "multivalued": false
       }
     ],
     "groups": [
