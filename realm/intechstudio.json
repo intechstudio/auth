@@ -9,7 +9,7 @@
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "bruteForceProtected": true,
-  "actionTokenGeneratedByAdminLifespan": 86400,
+  "actionTokenGeneratedByAdminLifespan": 604800,
   "actionTokenGeneratedByUserLifespan": 3600,
   "attributes": {
     "frontendUrl": "$(env:AUTH_FRONTEND_URL)",

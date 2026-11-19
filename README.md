@@ -126,8 +126,9 @@ users files and maps in `exports/`, which git ignores.
 `workflows/recovery-email.json` is a Keycloak workflow: every
 `RECOVERY_EMAIL_INTERVAL` it sends up to `RECOVERY_EMAIL_BATCH_SIZE` users
 with `recoveryEmail=pending` a link to set a password (and verify the email),
-then removes the attribute, so nobody gets it twice. The link is valid for 24
-hours and ends with a link back to `WEBSITE_URL`.
+then removes the attribute, so nobody gets it twice. The link is valid for 7
+days (the realm's admin-initiated action lifespan) and ends with a link back
+to `WEBSITE_URL`.
 
 ```sh
 node workflows/apply.ts                                # create (disabled) or update
