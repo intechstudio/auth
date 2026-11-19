@@ -1,0 +1,71 @@
+/* Colors, logo and buttons only; layout and markup stay Keycloak's (plan decision 58: system fonts) */
+:root {
+    --keycloak-logo-url: url("../img/logo.svg");
+    --keycloak-logo-height: 22px;
+    --keycloak-logo-width: 300px;
+    --keycloak-card-top-color: #000;
+
+    --pf-v5-global--FontFamily--text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --pf-v5-global--FontFamily--heading: var(--pf-v5-global--FontFamily--text);
+    --pf-v5-global--link--Color: #000;
+    --pf-v5-global--link--Color--hover: #575757;
+    --pf-v5-global--primary-color--100: #000;
+    --pf-v5-global--primary-color--200: #242424;
+    --pf-v5-global--BorderRadius--sm: 0;
+    --pf-v5-global--BorderRadius--lg: 0;
+}
+
+.login-pf body {
+    background: #f3f3f3;
+}
+
+#kc-header-wrapper {
+    padding-block: var(--pf-v5-global--spacer--lg);
+}
+
+.pf-v5-c-login__main {
+    border: 2px solid #000;
+    box-shadow: none;
+}
+
+.pf-v5-c-login__main-header {
+    border-top: none;
+}
+
+.pf-v5-c-button.pf-m-primary {
+    --pf-v5-c-button--m-primary--BackgroundColor: #000;
+    --pf-v5-c-button--m-primary--hover--BackgroundColor: #000;
+    --pf-v5-c-button--m-primary--focus--BackgroundColor: #000;
+    --pf-v5-c-button--m-primary--active--BackgroundColor: #000;
+    --pf-v5-c-button--BorderRadius: 0;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: box-shadow 100ms, transform 100ms;
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+    box-shadow: 4px 4px 0 0 #444;
+}
+
+.pf-v5-c-button.pf-m-primary:active {
+    box-shadow: none;
+    transform: translate(2px, 2px);
+}
+
+#kc-social-providers .pf-v5-c-button.pf-m-tertiary {
+    --pf-v5-c-button--BorderRadius: 0;
+    --pf-v5-c-button--m-tertiary--after--BorderColor: #000;
+    --pf-v5-c-button--m-tertiary--hover--after--BorderColor: #000;
+}
+
+.pf-v5-c-form-control {
+    --pf-v5-c-form-control--BorderRadius: 0;
+    --pf-v5-c-form-control--focus--after--BorderBottomColor: #000;
+    --pf-v5-c-form-control--hover--after--BorderBottomColor: #000;
+}
+
+:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}

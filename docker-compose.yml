@@ -17,6 +17,9 @@ services:
       # localhost and a tunnel work side by side. start-dev already turns
       # hostname-strict off; trust the tunnel's X-Forwarded-Proto/-Host.
       KC_PROXY_HEADERS: xforwarded
+    volumes:
+      # start-dev does not cache themes: edits show on a reload
+      - ./themes:/opt/keycloak/themes:ro
     ports:
       - "127.0.0.1:3001:8080"
     depends_on:

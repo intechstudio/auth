@@ -1,6 +1,9 @@
 {
   "realm": "intechstudio",
   "enabled": true,
+  "displayName": "Intech Studio",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Intech Studio</span></div>",
+  "loginTheme": "intechstudio",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "editUsernameAllowed": true,

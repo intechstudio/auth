@@ -49,8 +49,15 @@ whose redirect URI is
 `http://localhost:3001/realms/intechstudio/broker/google/endpoint` (add the
 same path on your tunnel hostname to sign in with Google through it).
 
-Still to come: a login theme (message overrides on the default theme, system
-fonts for now).
+## Login theme
+
+`themes/intechstudio/login` puts the Intech logo and the website's black
+buttons on Keycloak's default sign-in page (`keycloak.v2`): a logo and one
+stylesheet, no copied templates and no changed texts, so Keycloak upgrades
+leave it working. System fonts for now. Compose mounts `themes/` and
+`start-dev` does not cache themes, so an edit shows on a reload. The realm
+file selects it (`loginTheme`); the logo comes from the realm's
+`displayNameHtml`.
 
 ## Localhost and an optional tunnel
 
