@@ -61,7 +61,10 @@ file selects it (`loginTheme`); the logo comes from the realm's
 
 `themes/intechstudio/email` frames every HTML email like the shop's emails
 (logo, bordered card, help line and address; Inter, then Roboto). The texts
-stay Keycloak's. The logos are the website's hosted PNGs under
+stay Keycloak's, except the recovery email's: Keycloak's invite step sends
+the "execute actions" email, whose subject and body
+`email/messages/messages_en.properties` replaces. An update-password email
+sent from the admin console reads the same. The logos are the website's hosted PNGs under
 `https://intech.studio/email/`. Mail goes out as "Intech Studio"
 `system@intech.studio`, replies to `support@intech.studio`.
 
