@@ -114,6 +114,13 @@ to copy generated ids.
 Local issuer: `http://localhost:3001/realms/intechstudio`; through a tunnel,
 `https://<hostname>/realms/intechstudio`.
 
+The website changes a customer's email or password through Keycloak's
+"Update email" and "Update password" pages (`kc_action`), not the account
+console. The `website` client's base URL, `/auth?action=refresh&redirect=/account`,
+is the "Back to application" link on Keycloak's info pages. Customers set up
+no second factor: TOTP, passkeys and recovery codes are off; email
+verification is the only check.
+
 ## Importing Firebase users
 
 Needs Node 24 or later; no packages to install. Users from a

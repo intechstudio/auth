@@ -137,10 +137,10 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
+      "baseUrl": "$(env:WEBSITE_URL)/auth?action=refresh&redirect=/account",
       "redirectUris": [
         "$(env:WEBSITE_URL)/auth/callback",
-        "$(env:WEBSITE_URL)/",
-        "$(env:WEBSITE_URL)/account"
+        "$(env:WEBSITE_URL)/"
       ],
       "webOrigins": ["$(env:WEBSITE_URL)"],
       "attributes": {
@@ -192,6 +192,34 @@
       "providerId": "UPDATE_EMAIL",
       "enabled": true,
       "priority": 70
+    },
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": false,
+      "priority": 54
+    },
+    {
+      "alias": "webauthn-register",
+      "name": "Webauthn Register",
+      "providerId": "webauthn-register",
+      "enabled": false,
+      "priority": 80
+    },
+    {
+      "alias": "webauthn-register-passwordless",
+      "name": "Webauthn Register Passwordless",
+      "providerId": "webauthn-register-passwordless",
+      "enabled": false,
+      "priority": 90
+    },
+    {
+      "alias": "CONFIGURE_RECOVERY_AUTHN_CODES",
+      "name": "Recovery Authentication Codes",
+      "providerId": "CONFIGURE_RECOVERY_AUTHN_CODES",
+      "enabled": false,
+      "priority": 130
     }
   ],
   "identityProviders": [
