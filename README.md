@@ -59,6 +59,12 @@ leave it working. System fonts for now. Compose mounts `themes/` and
 file selects it (`loginTheme`); the logo comes from the realm's
 `displayNameHtml`.
 
+`themes/intechstudio/email` frames every HTML email like the shop's emails
+(logo, bordered card, help line and address; Inter, then Roboto). The texts
+stay Keycloak's. The logos are the website's hosted PNGs under
+`https://intech.studio/email/`. Mail goes out as "Intech Studio"
+`system@intech.studio`, replies to `support@intech.studio`.
+
 ## Localhost and an optional tunnel
 
 Keycloak has no fixed hostname: it builds its URLs, the issuer among them,
