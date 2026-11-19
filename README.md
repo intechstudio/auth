@@ -59,9 +59,9 @@ from each request. Everything on this machine (the website, the shop, Grid
 Editor, end-to-end tests and the scripts here) uses
 `http://localhost:3001/realms/intechstudio`.
 
-Only Profile Cloud's Firebase sign-in needs a public issuer. For that, each
-developer can run their own Cloudflare Tunnel to this Keycloak, under their
-own hostname. Localhost and the tunnel work at the same time, without
+A public issuer is only needed by something that cannot reach this machine.
+For that, each developer can run their own Cloudflare Tunnel to this
+Keycloak, under their own hostname. Localhost and the tunnel work at the same time, without
 switching anything. To set one up:
 
 1. In Cloudflare Zero Trust, create a tunnel (cloudflared) and copy its token.
@@ -76,8 +76,8 @@ switching anything. To set one up:
    # "https://auth-<name>.example.com/realms/intechstudio"
    ```
 
-5. Point a Firebase OIDC provider, or Grid Editor's `VITE_AUTH_ISSUER_DEV`,
-   at `https://auth-<name>.example.com/realms/intechstudio`.
+5. Point the client, for example Grid Editor's `VITE_AUTH_ISSUER_DEV`, at
+   `https://auth-<name>.example.com/realms/intechstudio`.
 
 Plain `docker compose up -d` leaves the tunnel off, and
 `docker compose stop cloudflared` stops it. Keycloak trusts `X-Forwarded-*` headers
