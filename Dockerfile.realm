@@ -1,0 +1,4 @@
+# The hosted realm apply: keycloak-config-cli with realm/ inside. Keep the tag
+# the same as in docker-compose.yml.
+FROM adorsys/keycloak-config-cli:6.5.1-26.5.5
+COPY realm /config

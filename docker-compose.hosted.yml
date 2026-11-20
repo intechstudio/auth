@@ -1,5 +1,6 @@
 # Hosted Keycloak, deployed from this repository. The local stack is
-# docker-compose.yml. Every value comes from the host's environment.
+# docker-compose.yml. Every value comes from the host's environment; one
+# written as ${NAME:?} must be set there.
 
 services:
   keycloak:
@@ -8,14 +9,14 @@ services:
     restart: unless-stopped
     environment:
       KC_DB: postgres
-      KC_DB_URL_HOST: ${KC_DB_URL_HOST}
+      KC_DB_URL_HOST: ${KC_DB_URL_HOST:?}
       KC_DB_URL_PORT: ${KC_DB_URL_PORT:-5432}
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?}
       # Fixed public URL: the issuer, every link in an email, and what the
       # recovery workflow needs (it refuses to run without a fixed hostname).
-      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_HOSTNAME: ${KC_HOSTNAME:?}
       # TLS ends at the host's proxy, which forwards plain HTTP.
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
@@ -30,3 +31,47 @@ services:
       interval: 10s
       start_period: 60s
       retries: 30
+
+  # One-off: applies realm/ on every deploy, then exits. An unchanged realm
+  # file and environment are skipped by checksum.
+  keycloak-config-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.realm
+    restart: "no"
+    # Coolify: an exited container here is not a failed deployment.
+    exclude_from_hc: true
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KEYCLOAK_URL: ${KC_HOSTNAME:?}
+      # The proxy may route to a new container a moment after it is healthy.
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: "true"
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: 120s
+      # A permanent admin of the master realm.
+      KEYCLOAK_USER: ${KC_ADMIN_USERNAME:?}
+      KEYCLOAK_PASSWORD: ${KC_ADMIN_PASSWORD:?}
+      IMPORT_FILES_LOCATIONS: /config/*.json
+      IMPORT_VARSUBSTITUTION_ENABLED: "true"
+      # The realm file lists only the required actions it changes; keep the rest.
+      IMPORT_MANAGED_REQUIREDACTION: no-delete
+      # For $${javascript: ...} in the realm file, which expands URL lists.
+      # The JS engine unpacks itself to a cache; the image's user has no home.
+      IMPORT_VARSUBSTITUTION_SCRIPTEVALUATIONENABLED: "true"
+      JAVA_OPTS: -Dpolyglot.engine.userResourceCache=/tmp/polyglot -Dpolyglot.engine.WarnInterpreterOnly=false
+      # KC_HOSTNAME already fixes the public URL.
+      AUTH_FRONTEND_URL: ""
+      WEBSITE_URL: ${WEBSITE_URL:?}
+      GRID_EDITOR_WEB_URLS: ${GRID_EDITOR_WEB_URLS:-}
+      DISCOURSE_URL: ${DISCOURSE_URL:-}
+      WEBSITE_CLIENT_SECRET: ${WEBSITE_CLIENT_SECRET:?}
+      DISCOURSE_CLIENT_SECRET: ${DISCOURSE_CLIENT_SECRET:-}
+      GOOGLE_ENABLED: ${GOOGLE_ENABLED:-false}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      SMTP_HOST: ${SMTP_HOST:?}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
