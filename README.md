@@ -211,3 +211,23 @@ fake users, for testing the importer:
 | `unverified@example.com` | `fixtureUidUnverifiedEmail003` | Unverified email |
 | `unverified.claim@example.com` | `fixtureUidUnverifiedClaim004` | Unverified email, recovered through "Forgot password" |
 | none | `fixtureUidAnonymous000000005` | Anonymous, not imported |
+
+## Hosted
+
+`docker-compose.hosted.yml` is the hosted stack, built from this repository:
+
+| Service | Image | Does |
+|---|---|---|
+| `keycloak` | `Dockerfile`: Keycloak with `themes/` inside | Runs in production mode against an external Postgres |
+| `keycloak-config-cli` | `Dockerfile.realm`: keycloak-config-cli with `realm/` inside | Applies the realm on every deploy, then exits |
+
+Every value comes from the host's environment. A variable written as
+`${NAME:?}` in the file must be set; the others have a default. The names are
+the ones in `.env.example`, plus `KC_HOSTNAME` (Keycloak's public URL) and
+`KC_DB_URL_HOST`. `KC_ADMIN_USERNAME` and `KC_ADMIN_PASSWORD` are a permanent
+admin of the master realm; on a new database, `KC_BOOTSTRAP_ADMIN_PASSWORD`
+creates `temp-admin` to make one with.
+
+A theme or realm change reaches the host by a deploy. The realm apply's log
+ends with `keycloak-config-cli ran in …`; an unchanged realm file and
+environment are skipped by checksum.
