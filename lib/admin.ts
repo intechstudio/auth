@@ -1,10 +1,11 @@
 // Admin API access for the scripts in this repo. Reads `.env` when present,
-// with the same local defaults as docker-compose.yml. The scripts always talk
-// to the local Keycloak, also while a tunnel is up.
+// with the same local defaults as docker-compose.yml. `AUTH_URL` picks the
+// Keycloak: the local one unless set, also while a tunnel is up.
 
 import { existsSync } from "node:fs";
 
 const DEFAULTS: Record<string, string> = {
+  AUTH_URL: "http://localhost:3001",
   WEBSITE_URL: "http://localhost:5173",
   KC_ADMIN_USERNAME: "admin",
   KC_ADMIN_PASSWORD: "admin",
@@ -20,13 +21,14 @@ export function env(name: string): string {
   return value;
 }
 
-export const AUTH_URL = new URL("http://localhost:3001");
+export const AUTH_URL = new URL(env("AUTH_URL"));
 export const REALM = "intechstudio";
 
 export type Admin = (path: string, init?: RequestInit) => Promise<Response>;
 
 // Returns a fetch for `<AUTH_URL>/admin/realms/intechstudio<path>`.
 export async function connect(): Promise<Admin> {
+  console.error(`Keycloak: ${AUTH_URL.origin}`);
   const tokenUrl = new URL("/realms/master/protocol/openid-connect/token", AUTH_URL);
   const tokenResponse = await fetch(tokenUrl, {
     method: "POST",

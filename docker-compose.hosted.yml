@@ -24,9 +24,6 @@ services:
       # Only when the master realm is created (first boot). Username stays the
       # default, temp-admin: a username without a password stops the server.
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-}
-    ports:
-      # For an SSH forward to the admin tools only; on the host's loopback.
-      - "127.0.0.1:8180:8080"
     healthcheck:
       # The image has no curl; ask the management port with bash.
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]

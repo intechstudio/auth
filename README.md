@@ -196,7 +196,8 @@ node e2e/test-user.ts delete <id>
 password. `token` signs in on the hosted login page with the code flow and
 PKCE, as the `grid-editor` client with a loopback redirect, so it needs no
 extra client or grant. Only JSON or the token goes to stdout. Like the other
-scripts, it uses the Keycloak on `http://localhost:3001`.
+scripts, it uses the Keycloak on `http://localhost:3001` unless `AUTH_URL`
+names another, and prints which one to stderr.
 
 ## Sample export
 
