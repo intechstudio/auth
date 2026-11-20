@@ -1,0 +1,35 @@
+# Hosted Keycloak, deployed from this repository. The local stack is
+# docker-compose.yml. Every value comes from the host's environment.
+
+services:
+  keycloak:
+    build: .
+    command: start
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: ${KC_DB_URL_HOST}
+      KC_DB_URL_PORT: ${KC_DB_URL_PORT:-5432}
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      # Fixed public URL: the issuer, every link in an email, and what the
+      # recovery workflow needs (it refuses to run without a fixed hostname).
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      # TLS ends at the host's proxy, which forwards plain HTTP.
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      # /health/ready on the management port 9000, not exposed.
+      KC_HEALTH_ENABLED: "true"
+      # Only when the master realm is created (first boot). Username stays the
+      # default, temp-admin: a username without a password stops the server.
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-}
+    ports:
+      # For an SSH forward to the admin tools only; on the host's loopback.
+      - "127.0.0.1:8180:8080"
+    healthcheck:
+      # The image has no curl; ask the management port with bash.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      start_period: 60s
+      retries: 30
