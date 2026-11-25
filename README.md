@@ -1,19 +1,27 @@
 # auth
 
-The local identity provider for Intech Studio development. The website, the
-shop, Grid Editor and Profile Cloud sign in through
-[Keycloak](https://www.keycloak.org); this repo runs a Keycloak instance on
-your machine and configures it from code, so each of those projects can be
-developed against real sign-in.
+The identity provider of Intech Studio. The website, the shop, Grid Editor
+and Profile Cloud sign in through [Keycloak](https://www.keycloak.org); this
+repo configures it from code and runs it in two places:
+
+| | Runs | From | Issuer |
+|---|---|---|---|
+| Local | on your machine, so each of those projects can be developed against real sign-in | `docker-compose.yml` | `http://localhost:3001/realms/intechstudio` |
+| Hosted | on Coolify: the Keycloak customers sign in to | `docker-compose.hosted.yml` | `https://auth.intech.studio/realms/intechstudio` |
+
+Both get the same Keycloak version, the same realm file
+(`realm/intechstudio.json`) and the same themes (`themes/`). The URLs and
+secrets come from the environment: `.env` locally, Coolify's environment
+variables hosted.
 
 The projects speak standard OpenID Connect only (discovery, code + PKCE, ID
 token verification against JWKS, RP-initiated logout). Nothing in them is
 specific to Keycloak; everything that is lives here.
 
-It holds no production configuration and no credentials. Keep it that way: never
-commit a `.env` file, a user export, or anything taken from a hosted instance.
+The repo holds no secrets and no user data. Keep it that way: never commit a
+`.env` file, a user export, or anything taken from the hosted instance.
 
-## Running it
+## Running it locally
 
 ```sh
 cp .env.example .env
@@ -54,10 +62,10 @@ same path on your tunnel hostname to sign in with Google through it).
 `themes/intechstudio/login` puts the Intech logo and the website's black
 buttons on Keycloak's default sign-in page (`keycloak.v2`): a logo and one
 stylesheet, no copied templates and no changed texts, so Keycloak upgrades
-leave it working. System fonts for now. Compose mounts `themes/` and
-`start-dev` does not cache themes, so an edit shows on a reload. The realm
-file selects it (`loginTheme`); the logo comes from the realm's
-`displayNameHtml`.
+leave it working. System fonts for now. Locally, compose mounts `themes/` and
+`start-dev` does not cache themes, so an edit shows on a reload; hosted, the
+themes are in the image and change with a deploy. The realm file selects it
+(`loginTheme`); the logo comes from the realm's `displayNameHtml`.
 
 `themes/intechstudio/email` frames every HTML email like the shop's emails
 (logo, bordered card, help line and address; Inter, then Roboto). The texts
@@ -100,6 +108,46 @@ Plain `docker compose up -d` leaves the tunnel off, and
 (`KC_PROXY_HEADERS`); cloudflared sends the tunnel hostname as `Host` and
 `X-Forwarded-Proto: https`, so the tunnel's URLs are `https`.
 
+## Hosted on Coolify
+
+Coolify deploys `docker-compose.hosted.yml` from this repository, builds its
+two images and runs the Keycloak at `https://auth.intech.studio`:
+
+| Service | Image | Does |
+|---|---|---|
+| `keycloak` | `Dockerfile`: Keycloak with `themes/` inside | Runs in production mode against an external Postgres |
+| `keycloak-config-cli` | `Dockerfile.realm`: keycloak-config-cli with `realm/` inside | Applies the realm on every deploy, then exits |
+
+What differs from the local stack:
+
+| | Local | Hosted |
+|---|---|---|
+| Keycloak | `start-dev` | `start` (production mode) |
+| Its URL | from each request | fixed: `KC_HOSTNAME` |
+| Reached | on `127.0.0.1:3001` | through Coolify's proxy, which ends TLS; no port is published |
+| Postgres | in the compose file | external (`KC_DB_URL_HOST`) |
+| Mail | Mailpit | an SMTP server (`SMTP_HOST`) |
+| Themes | mounted; an edit shows on a reload | in the image |
+| Realm | applied on `up`, and again by `docker compose run` | applied on every deploy |
+
+Every value comes from Coolify's environment variables. A variable written as
+`${NAME:?}` in the file must be set; the others have a default. The names are
+the ones in `.env.example`, plus `KC_HOSTNAME` (Keycloak's public URL) and
+`KC_DB_URL_HOST`. `KC_ADMIN_USERNAME` and `KC_ADMIN_PASSWORD` are a permanent
+admin of the master realm; on a new database, `KC_BOOTSTRAP_ADMIN_PASSWORD`
+creates `temp-admin` to make one with. With `GOOGLE_ENABLED=true`, the Google
+OAuth client's redirect URI is
+`https://auth.intech.studio/realms/intechstudio/broker/google/endpoint`.
+
+A theme or realm change reaches the host by a deploy. The realm apply's log
+ends with `keycloak-config-cli ran in …`; an unchanged realm file and
+environment are skipped by checksum. Its container exits when done;
+`exclude_from_hc` tells Coolify that this is not a failed deployment.
+
+The importer and the test-user helper work on the hosted Keycloak when
+`AUTH_URL` names it, with `KC_ADMIN_USERNAME` and `KC_ADMIN_PASSWORD` of an
+admin there. Each prints the Keycloak it talks to first.
+
 ## Clients
 
 Client ids are fixed strings, the same in every database, so no project has
@@ -112,7 +160,8 @@ to copy generated ids.
 | `discourse` | confidential | the forum |
 
 Local issuer: `http://localhost:3001/realms/intechstudio`; through a tunnel,
-`https://<hostname>/realms/intechstudio`.
+`https://<hostname>/realms/intechstudio`. Hosted issuer:
+`https://auth.intech.studio/realms/intechstudio`.
 
 The website changes a customer's email or password through Keycloak's
 "Update email" and "Update password" pages (`kc_action`), not the account
