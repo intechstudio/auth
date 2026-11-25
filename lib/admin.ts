@@ -9,8 +9,6 @@ const DEFAULTS: Record<string, string> = {
   WEBSITE_URL: "http://localhost:5173",
   KC_ADMIN_USERNAME: "admin",
   KC_ADMIN_PASSWORD: "admin",
-  RECOVERY_EMAIL_INTERVAL: "30s",
-  RECOVERY_EMAIL_BATCH_SIZE: "2",
 };
 
 if (existsSync(".env")) process.loadEnvFile(".env");
