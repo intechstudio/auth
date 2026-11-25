@@ -61,10 +61,10 @@ file selects it (`loginTheme`); the logo comes from the realm's
 
 `themes/intechstudio/email` frames every HTML email like the shop's emails
 (logo, bordered card, help line and address; Inter, then Roboto). The texts
-stay Keycloak's, except the recovery email's: Keycloak's invite step sends
-the "execute actions" email, whose subject and body
-`email/messages/messages_en.properties` replaces. An update-password email
-sent from the admin console reads the same. The logos are the website's hosted PNGs under
+stay Keycloak's, except the "execute actions" email's:
+`email/messages/messages_en.properties` replaces its subject and body, so an
+update-password email sent from the admin console reads like the recovery
+email of the move from Firebase. The logos are the website's hosted PNGs under
 `https://intech.studio/email/`. Mail goes out as "Intech Studio"
 `system@intech.studio`, replies to `support@intech.studio`.
 
@@ -127,7 +127,8 @@ Needs Node 24 or later; no packages to install. Users from a
 `firebase auth:export --format=json` file get a Keycloak id like every other
 user, no password, and keep their Google link. Their Firebase uid goes into
 the admin-only attribute `firebaseUid`. Users who had a password also get
-`recoveryEmail=pending`, which the recovery workflow below acts on. Users
+`recoveryEmail=pending`, the marker of the recovery email workflow, which ran
+once after the move and is removed since. Users
 without an email are skipped, and so are users whose email (ignoring case)
 appears more than once; both are listed.
 
@@ -143,43 +144,6 @@ that already exists is skipped, not overwritten, so loading again is safe.
 `uid-map.ts` reads the ids Keycloak assigned back from `firebaseUid`; apps
 that keyed data on the Firebase uid remap with that file. Keep exports,
 users files and maps in `exports/`, which git ignores.
-
-## Recovery email
-
-`workflows/recovery-email.json` is a Keycloak workflow: every
-`RECOVERY_EMAIL_INTERVAL` it sends up to `RECOVERY_EMAIL_BATCH_SIZE` users
-with `recoveryEmail=pending` a link to set a password (and verify the email),
-then removes the attribute, so nobody gets it twice. The link is valid for 7
-days (the realm's admin-initiated action lifespan) and ends with a link back
-to `WEBSITE_URL`.
-
-```sh
-node workflows/apply.ts                                # create (disabled) or update
-node workflows/apply.ts --enable recovery-email        # start sending
-node workflows/apply.ts --disable recovery-email       # pause
-```
-
-Applying creates the workflow disabled and otherwise leaves its enabled state
-alone; only `--enable` and `--disable`, or the toggle under Workflows in the
-admin console, change it. keycloak-config-cli does not manage it: its
-workflow support does not work against Keycloak 26.8.
-
-The workflow sends without a request, so Keycloak has no host to build the
-link from: creating it fails, and a running one sends nothing (users stay
-pending). To test it, give Keycloak a fixed URL first, and take it away when
-done:
-
-```sh
-# .env: AUTH_FRONTEND_URL=http://localhost:3001
-docker compose run --rm keycloak-config-cli
-```
-
-Meanwhile every issuer is `http://localhost:3001/realms/intechstudio`, the
-tunnel's too. Clear `AUTH_FRONTEND_URL` and apply the realm again to get the
-tunnel back.
-
-The scripts read `.env` and always talk to the Keycloak on
-`http://localhost:3001`.
 
 ## Test users for end-to-end tests
 
