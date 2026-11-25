@@ -199,6 +199,28 @@ extra client or grant. Only JSON or the token goes to stdout. Like the other
 scripts, it uses the Keycloak on `http://localhost:3001` unless `AUTH_URL`
 names another, and prints which one to stderr.
 
+## Notice email
+
+`notice/send.ts` mails one text to every enabled user with an email in a
+Firebase export, once per address, 12 a second. It needs `npm install`
+(nodemailer). The text is a plain file: the subject on the first line, an
+empty line, then paragraphs separated by empty lines. It goes out in the
+frame of the realm's emails, from the same sender.
+
+```sh
+node notice/send.ts export.json exports/notice.txt                          # dry run: counts only
+node notice/send.ts export.json exports/notice.txt --test-to me@example.com # that address only
+node notice/send.ts export.json exports/notice.txt --commit --limit 500     # the next 500
+node notice/send.ts export.json exports/notice.txt --commit                 # everyone left
+```
+
+It sends through `SMTP_HOST`, `SMTP_PORT`, `SMTP_STARTTLS`, `SMTP_USER` and
+`SMTP_PASSWORD` from the shell, and prints the server first; with none set,
+that is the local Mailpit. It does not read `.env`. Each address sent is
+appended to `<notice file>.<SMTP host>.sent`, so a run stopped with Ctrl-C,
+or one with failed sends, continues when started again, and a test against
+Mailpit does not count as sent elsewhere.
+
 ## Sample export
 
 `fixtures/firebase-export.sample.json` is a Firebase `auth:export` file with
